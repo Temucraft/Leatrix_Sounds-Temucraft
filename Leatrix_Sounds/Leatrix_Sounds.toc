@@ -1,9 +1,11 @@
-## Interface: 11509
+## Interface: 30300
 
 ## Title: Leatrix Sounds
 ## Notes: curseforge.com/wow/addons/leatrix-sounds
 
 ## Version: 1.15.166
+## X-Temucraft: 3.3.5 port of the Classic version (needs !TemucraftCompat)
+## Dependencies: !TemucraftCompat
 ## Author: Leatrix
 ## SavedVariables: LeaSoundsDB
 ## LoadSavedVariablesFirst: true

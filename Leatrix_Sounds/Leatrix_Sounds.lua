@@ -1,4 +1,4 @@
-﻿
+
 	----------------------------------------------------------------------
 	-- Leatrix Sounds 1.15.166 (11th November 2026)
 	----------------------------------------------------------------------
@@ -19,12 +19,13 @@
 	-- Find out which game version this is (the same file is used for every game version)
 	do
 		local gameversion, gamebuild, gamedate, gametocversion = GetBuildInfo()
+		gametocversion = gametocversion or 30300 -- 3.3.5 returns no interface version
 		-- Supported game versions (lowest interface version, highest interface version, game version name, text shown after the version in the help)
 		local gameVersions = {
 			{10000, 15999, L["World of Warcraft Classic"]},
 			{16000, 19999, L["Forever"], L["for World of Warcraft Forever"]},
 			{20000, 29999, L["Burning Crusade Anniversary"]},
-			{30000, 39999, L["Titan Reforged Classic"]},
+			{30000, 39999, L["Wrath of the Lich King"]},
 			{50000, 59999, L["Mists of Pandaria Classic"]},
 			{120000, 129999, L["Midnight"]},
 		}
@@ -260,11 +261,19 @@
 		mbtn:GetHighlightTexture():SetTexCoord(0, 0.5, 0, 1)
 
 		-- Hide the default textures
-		mbtn:HookScript("OnShow", function() mbtn.Left:Hide(); mbtn.Middle:Hide(); mbtn.Right:Hide() end)
-		mbtn:HookScript("OnEnable", function() mbtn.Left:Hide(); mbtn.Middle:Hide(); mbtn.Right:Hide() end)
-		mbtn:HookScript("OnDisable", function() mbtn.Left:Hide(); mbtn.Middle:Hide(); mbtn.Right:Hide() end)
-		mbtn:HookScript("OnMouseDown", function() mbtn.Left:Hide(); mbtn.Middle:Hide(); mbtn.Right:Hide() end)
-		mbtn:HookScript("OnMouseUp", function() mbtn.Left:Hide(); mbtn.Middle:Hide(); mbtn.Right:Hide() end)
+		-- (3.3.5: the button template has whole textures, not left, middle and right pieces)
+		local function HideSlices()
+			if mbtn.Left then mbtn.Left:Hide(); mbtn.Middle:Hide(); mbtn.Right:Hide() end
+		end
+		if not mbtn.Left then
+			mbtn:SetPushedTexture("Interface\\AddOns\\Leatrix_Sounds\\Leatrix_Sounds.blp"); mbtn:GetPushedTexture():SetTexCoord(0.5, 1, 0, 1)
+			mbtn:SetDisabledTexture("Interface\\AddOns\\Leatrix_Sounds\\Leatrix_Sounds.blp"); mbtn:GetDisabledTexture():SetTexCoord(0.5, 1, 0, 1)
+		end
+		mbtn:HookScript("OnShow", HideSlices)
+		mbtn:HookScript("OnEnable", HideSlices)
+		mbtn:HookScript("OnDisable", HideSlices)
+		mbtn:HookScript("OnMouseDown", HideSlices)
+		mbtn:HookScript("OnMouseUp", HideSlices)
 
 		return mbtn
 	end
@@ -1442,7 +1451,7 @@
 		local langList = {{L["Automatic"], 1}, {L["English"], 2}, {L["Deutsch"], 3}, {L["Español (EU)"], 4}, {L["Español (AL)"], 5}, {L["Français"], 6}, {L["Italiano"], 7}, {L["Português"], 8}, {L["Русский"], 9}, {L["한국어"], 10}, {L["简体中文"], 11}, {L["繁體中文"], 12}}
 
 		-- Dropdown uses the standard dropdown template and menu system (the same as Leatrix Plus, so nothing is tainted)
-		local langDrop = CreateFrame("DropdownButton", nil, settingsChild, "WowStyle1DropdownTemplate")
+		local langDrop = CreateFrame("Button", nil, settingsChild, "WowStyle1DropdownTemplate")
 		LeaSoundsCB["LanguageDropdown"] = langDrop
 		langDrop:SetPoint("TOPLEFT", langLabel, "BOTTOMLEFT", 0, -6)
 		-- (the same width at any panel size)
@@ -2554,8 +2563,15 @@
 				-- Muted tracks are previewed but stay muted in the game
 				musicHandle = PreviewMutedSound(GetTrackID(item))
 			elseif file and (strfind(file, ".mp3") or strfind(file, ".ogg")) then
-				-- Play sound file
-				void, musicHandle = PlaySoundFile(soundID, "Master")
+				-- Play sound file (3.3.5: by path; music with PlayMusic so Stop can end it)
+				local path = file:gsub("/", "\\")
+				if strfind(file, "^sound/music") or strfind(file, "^interface/cinematics") or strfind(file, "^sound/cinematicvoices") then
+					PlayMusic(path)
+					musicHandle = "music"
+				else
+					PlaySoundFile(path, "Master")
+					musicHandle = nil
+				end
 			end
 			-- Lock the stop button (or play the next queued track) when the sound finishes
 			WatchPlayback()
@@ -4592,7 +4608,7 @@
 					local scrollBox = CreateFrame("Frame", nil, f, "WowScrollBoxList")
 					scrollBox:SetPoint("TOPLEFT", 8, -54)
 					scrollBox:SetPoint("BOTTOMRIGHT", f, "BOTTOMLEFT", listW - 24, 8)
-					local scrollBar = CreateFrame("EventFrame", nil, f, "MinimalScrollBar")
+					local scrollBar = CreateFrame("Slider", nil, f, "MinimalScrollBar")
 					scrollBar:SetPoint("TOPLEFT", scrollBox, "TOPRIGHT", 6, 0)
 					scrollBar:SetPoint("BOTTOMLEFT", scrollBox, "BOTTOMRIGHT", 6, 0)
 					local view = CreateScrollBoxListLinearView()
