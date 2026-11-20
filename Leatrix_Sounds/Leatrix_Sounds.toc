@@ -1,0 +1,19 @@
+## Interface: 11509
+
+## Title: Leatrix Sounds
+## Notes: curseforge.com/wow/addons/leatrix-sounds
+
+## Version: 1.15.166
+## Author: Leatrix
+## SavedVariables: LeaSoundsDB
+## LoadSavedVariablesFirst: true
+
+## IconTexture: Interface\HELPFRAME\HelpIcon-Bug
+## X-Curse-Project-ID: 304659
+
+Leatrix_Sounds_Locale.lua
+Leatrix_Sounds_Data.lua
+Leatrix_Sounds_Kits.lua
+Leatrix_Sounds_Creatures.lua
+Leatrix_Sounds.xml
+Leatrix_Sounds.lua
